@@ -104,7 +104,7 @@ public class RateLimiterDefaultImplTest {
                 assertEquals(0, rateLimiter.tillToOpenInSeconds(client));
             }
             assertEquals(1, rateLimiter.tillToOpenInSeconds(client));
-            Thread.sleep(1000);
+            Thread.sleep(1100);
         }
     }
 
@@ -120,7 +120,7 @@ public class RateLimiterDefaultImplTest {
     }
 
     @Test
-    public void setABSwitch() throws InterruptedException {
+    public void testABSwitch() throws InterruptedException {
         int durationInSeconds = 5;
         int limit = 10;
         RateLimiter rateLimiter = RateLimiterFactory.getRateLimiter(durationInSeconds, limit);

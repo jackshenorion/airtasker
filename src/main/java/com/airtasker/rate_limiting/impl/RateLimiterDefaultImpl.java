@@ -71,6 +71,9 @@ public class RateLimiterDefaultImpl implements RateLimiter {
     private void checkAndUpdateCurrentSwitch() {
         long currentTimeInSeconds = System.currentTimeMillis() / 1000;
         int targetSwitch = (int) ((currentTimeInSeconds / this.switchDurationInSeconds) % 2);
+        if (targetSwitch == currentSwitch) {
+            return;
+        }
         boolean switched = false;
         synchronized (this) {
             if (targetSwitch != currentSwitch) {
