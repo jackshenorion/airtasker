@@ -58,8 +58,10 @@ public class RateLimiterDefaultImpl implements RateLimiter {
 
     private Queue<Long> getRate(String requester) {
         checkAndUpdateCurrentSwitch();
-        Map<String, Queue<Long>> currentRates = requesterToRatesWithABSwitch[currentSwitch];
-        Map<String, Queue<Long>> historicalRates = requesterToRatesWithABSwitch[(currentSwitch + 1) % 2];
+        int current = currentSwitch;
+        int history = (current + 1) % 2;
+        Map<String, Queue<Long>> currentRates = requesterToRatesWithABSwitch[current];
+        Map<String, Queue<Long>> historicalRates = requesterToRatesWithABSwitch[history];
         if (!currentRates.containsKey(requester)) {
             if (historicalRates.containsKey(requester)) {
                 currentRates.putIfAbsent(requester, historicalRates.get(requester));
