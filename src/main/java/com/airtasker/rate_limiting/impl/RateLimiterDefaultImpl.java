@@ -39,18 +39,20 @@ public class RateLimiterDefaultImpl implements RateLimiter {
         long currentTimeInMilliSeconds = System.currentTimeMillis();
         long beginOfWindowInMilliSeconds = currentTimeInMilliSeconds - durationInSeconds * 1000;
         Queue<Long> rate = getRate(requester);
-        while (!rate.isEmpty() && rate.peek() < beginOfWindowInMilliSeconds) {
-            rate.poll();
-        }
-        if (rate.size() < limit) {
-            rate.offer(currentTimeInMilliSeconds);
-            return 0;
-        } else {
-            while (rate.size() > limit) { // poll until there're only limit of timestamps in queue
+        synchronized (rate) {
+            while (!rate.isEmpty() && rate.peek() < beginOfWindowInMilliSeconds) {
                 rate.poll();
             }
-            beginOfWindowInMilliSeconds = rate.peek();
-            return Math.round((beginOfWindowInMilliSeconds + durationInSeconds * 1000 - currentTimeInMilliSeconds) / 1000.0);
+            if (rate.size() < limit) {
+                rate.offer(currentTimeInMilliSeconds);
+                return 0;
+            } else {
+                while (rate.size() > limit) { // poll until there're only limit of timestamps in queue
+                    rate.poll();
+                }
+                beginOfWindowInMilliSeconds = rate.peek();
+                return Math.round((beginOfWindowInMilliSeconds + durationInSeconds * 1000 - currentTimeInMilliSeconds) / 1000.0);
+            }
         }
     }
 
