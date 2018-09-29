@@ -131,5 +131,4 @@ public class RateLimiterDefaultImplTest {
             Thread.sleep(durationInSeconds * 1000 / limit);
         }
     }
-
 }

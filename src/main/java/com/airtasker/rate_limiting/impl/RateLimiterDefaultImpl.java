@@ -71,15 +71,19 @@ public class RateLimiterDefaultImpl implements RateLimiter {
     private void checkAndUpdateCurrentSwitch() {
         long currentTimeInSeconds = System.currentTimeMillis() / 1000;
         int targetSwitch = (int) ((currentTimeInSeconds / this.switchDurationInSeconds) % 2);
-        if (targetSwitch != currentSwitch) {
+        boolean switched = false;
+        synchronized (this) {
+            if (targetSwitch != currentSwitch) {
+                this.requesterToRatesWithABSwitch[targetSwitch] = new ConcurrentHashMap<>(); // purge outdated rates
+                this.currentSwitch = targetSwitch;
+                switched = true;
+            }
+        }
+        if (switched) {
             logger.info("RateLimiterDefaultImpl rates map is switched." +
                     "From switch: " + currentSwitch +
                     " to switch: " + targetSwitch +
                     " from size: " + requesterToRatesWithABSwitch[currentSwitch].size());
-            synchronized (this) {
-                this.requesterToRatesWithABSwitch[targetSwitch] = new ConcurrentHashMap<>(); // purge outdated rates
-                this.currentSwitch = targetSwitch;
-            }
         }
     }
 }
